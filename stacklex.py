@@ -1,15 +1,23 @@
 import lib.ply.lex as lex
 
-tokens = (
+tokens = [
+    'ID',
     'NUMBER',
     'STRING',
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'EQUALS', 'MODULUS',
     'LPAREN', 'RPAREN',
     'LBRACE', 'RBRACE',
     'LBRACKET', 'RBRACKET',
-    'DOT', 'NEW',
+    'DOT',
     'OR', 'AND', 'NOT',
-    'ID', 'TYPE',
+    'EQEQ', 'LT', 'GT', 'LTE', 'GTE', 'NE',
+    'SEMI', 'COLON', 'COMMA', 'RANGE', 'ELLIPSIS',
+    'TYPE',
+    'SLCOMMENT', 'MLCOMMENT',
+    'QMARK'
+]
+
+keywords = [
     'IF', 'ELSE',
     'WHILE', 'FOR',
     'IN',
@@ -18,8 +26,11 @@ tokens = (
     'CLASS', 'INTERFACE', 'EXTENDS', 'IMPLEMENTS',
     'PUBLIC', 'PRIVATE',
     'IMPORT', 'AS',
-    'SLCOMMENT'
-)
+    'NEW',
+    'TRUE', 'FALSE', 'NULL'
+]
+
+tokens += keywords
 
 # Tokens
 
@@ -34,9 +45,17 @@ t_MODULUS = r'%'
 t_EQUALS = r'='
 
 # Logic
-T_OR = r'\|\|'
-T_AND = r'&&'
-T_NOT = r'!'
+t_OR = r'\|\|'
+t_AND = r'&&'
+t_NOT = r'!'
+
+# Comparison
+t_EQEQ = r'=='
+t_LT = '<'
+t_GT = '>'
+t_LTE = '<='
+t_GTE = '>='
+t_NE = '!='
 
 # Paren/Brace/Bracket
 t_LPAREN = r'\('
@@ -46,39 +65,32 @@ t_RBRACE = r'\}'
 t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
 
-# Class Keywords
-t_CLASS = r'class'
-t_INTERFACE = r'interface'
-t_EXTENDS = r'extends'
-t_IMPLEMENTS = r'implements'
-T_PUBLIC = 'public'
-T_PRIVATE = 'private'
+# Separators
+t_SEMI = r';'
+t_COLON = r':'
+t_COMMA = r','
+t_RANGE = r'\.\.'
+t_ELLIPSIS = r'\.\.\.'
+
+# Optional
+t_QMARK = r'\?'
 
 # Objects
 t_DOT = r'\.'
-t_NEW = r'new'
-
-# Control Keywords
-t_IF = r'if'
-t_ELSE = r'else'
-t_WHILE = r'while'
-t_FOR = r'for'
-t_BREAK = 'break'
-t_CONTINUE = 'continue'
-t_IN = r'in'
-
-# Function Keywords
-t_RETURN = r'return'
-
-# Import Keywords
-t_IMPORT = r'import'
-t_AS = r'as'
-
-# Identifier
-t_ID = r'[a-z][a-zA-Z0-9_]*'
 
 # Type
 t_TYPE = r'[A-Z][a-zA-Z0-9_]*'
+
+
+# Identifiers and Keywords
+def t_ID(t):
+    r'[a-z][a-zA-Z0-9_]*'
+    keywordUpper = t.value.upper()
+    keywordLower = t.value.lower()
+    if keywordUpper in keywords:
+        t.type = keywordUpper
+        t.value = keywordLower
+    return t
 
 
 def t_STRING(t):
@@ -93,7 +105,7 @@ def t_SLCOMMENT(t):
     t.lexer.skip(len(t.value))
 
 
-def t_mlcomment(t):
+def t_MLCOMMENT(t):
     r"""/\*.*\*/"""
     t.lexer.skip(len(t.value))
 
@@ -105,7 +117,7 @@ def t_NUMBER(t):
 
 
 # Ignored characters
-t_ignore = " \t"
+t_ignore = " \t\r"
 
 
 def t_newline(t):
